@@ -1,9 +1,6 @@
 const User = require('../models/user') // путь к модели пользователя
 
 const handleErrorResponse = (code, res, errorMessage) => {
-    if (!code) {
-        res.status(500).json({ error: errorMessage })
-    }
     res.status(code).json({ error: errorMessage })
 }
 
@@ -13,7 +10,7 @@ exports.getAllUsers = async (req, res) => {
         const users = await User.find()
         return res.status(200).json(users)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -27,14 +24,13 @@ exports.getUserById = async (req, res) => {
         }
         return res.status(200).json(user)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
 // Обработчик для создания нового пользователя
 exports.createUser = async (req, res) => {
     const { name, about, avatar } = req.body
-    console.log({ name, about, avatar })
     try {
         if (!name || !about || !avatar) {
             return handleErrorResponse(
@@ -47,7 +43,7 @@ exports.createUser = async (req, res) => {
         const newUser = await User.create({ name, about, avatar })
         return res.status(201).json(newUser)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -66,7 +62,7 @@ exports.updateUserProfile = async (req, res) => {
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -85,6 +81,6 @@ exports.updateUserAvatar = async (req, res) => {
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }

@@ -1,9 +1,6 @@
 const Card = require('../models/card') // путь к модели карточки
 
 const handleErrorResponse = (code, res, errorMessage) => {
-    if (!code) {
-        res.status(500).json({ error: errorMessage })
-    }
     res.status(code).json({ error: errorMessage })
 }
 
@@ -13,7 +10,7 @@ exports.getAllCards = async (req, res) => {
         const cards = await Card.find()
         return res.status(200).json(cards)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -33,7 +30,7 @@ exports.createCard = async (req, res) => {
         const newCard = await Card.create({ name, link, owner })
         return res.status(201).json(newCard)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -47,7 +44,7 @@ exports.deleteCardById = async (req, res) => {
         }
         return res.status(200).json({ message: 'Карточка удалена' })
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -65,7 +62,7 @@ exports.likeCard = async (req, res) => {
         }
         return res.status(200).json(updatedCard)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
 
@@ -83,6 +80,6 @@ exports.dislikeCard = async (req, res) => {
         }
         return res.status(200).json(updatedCard)
     } catch (err) {
-        return handleErrorResponse(res, err)
+        return handleErrorResponse(500, res, err)
     }
 }
