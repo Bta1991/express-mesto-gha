@@ -1,8 +1,10 @@
 const User = require('../models/user') // путь к модели пользователя
 
-const handleErrorResponse = (res, error) => {
-    console.error(error) // Логируем ошибку для отладки
-    return res.status(500).json({ message: 'Произошла ошибка на сервере' })
+const handleErrorResponse = (code, res, errorMessage) => {
+    if (!code) {
+        res.status(500).json({ error: errorMessage })
+    }
+    res.status(code).json({ error: errorMessage })
 }
 
 // Обработчик для получения всех пользователей
@@ -21,7 +23,7 @@ exports.getUserById = async (req, res) => {
     try {
         const user = await User.findById(userId)
         if (!user) {
-            return res.status(404).json({ error: 'Такого пользователя нет' })
+            return handleErrorResponse(404, res, 'Такого пользователя нет')
         }
         return res.status(200).json(user)
     } catch (err) {
@@ -35,9 +37,11 @@ exports.createUser = async (req, res) => {
     console.log({ name, about, avatar })
     try {
         if (!name || !about || !avatar) {
-            return res
-                .status(400)
-                .json({ message: 'Не все обязательные поля заполнены' })
+            return handleErrorResponse(
+                400,
+                res,
+                'Не все обязательные поля заполнены'
+            )
         }
 
         const newUser = await User.create({ name, about, avatar })
@@ -47,16 +51,40 @@ exports.createUser = async (req, res) => {
     }
 }
 
-// exports.createUser = async (req, res) => {
-//   try {
-//     const { name, about, avatar } = req.body;
-//     if (!name || !about || !avatar) {
-//       return res.status(400).json({ message: 'Не все обязательные поля заполнены' });
-//     }
+exports.updateUserProfile = async (req, res) => {
+    const { name, about } = req.body
+    const userId = req.user._id
 
-//     const newUser = await User.create({ name, about, avatar });
-//     return res.status(201).json(newUser);
-//   } catch (err) {
-//     return handleErrorResponse(res, err);
-//   }
-// };
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { name, about },
+            { new: true }
+        )
+        if (!updatedUser) {
+            return handleErrorResponse(404, res, 'Такого пользователя нет')
+        }
+        return res.status(200).json(updatedUser)
+    } catch (err) {
+        return handleErrorResponse(res, err)
+    }
+}
+
+exports.updateUserAvatar = async (req, res) => {
+    const { avatar } = req.body
+    const userId = req.user._id
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { avatar },
+            { new: true }
+        )
+        if (!updatedUser) {
+            return handleErrorResponse(404, res, 'Такого пользователя нет')
+        }
+        return res.status(200).json(updatedUser)
+    } catch (err) {
+        return handleErrorResponse(res, err)
+    }
+}
