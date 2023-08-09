@@ -11,7 +11,7 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-      "operator-linebreak": ["error", "none"],
+      "operator-linebreak": "off",
       "no-underscore-dangle": ["error", { "allow": ["_id"] }]
     }
 }

@@ -6,13 +6,9 @@ const { ERROR_CODE, handleErrorResponse } = require('../utils/errorUtils'); // �
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
-    return res.status(200).json(users);
+    return res.json(users);
   } catch (err) {
-    return handleErrorResponse(
-      ERROR_CODE.INTERNAL_SERVER_ERROR,
-      res,
-      err.message,
-    );
+    return handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
   }
 };
 
@@ -22,15 +18,13 @@ exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return handleErrorResponse(
-        ERROR_CODE.NOT_FOUND,
-        res,
-        'Такого пользователя нет',
-      );
+      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
     }
-    return res.status(200).json(user);
+    return res.json(user);
   } catch (err) {
-    return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message);
+    return err.name === 'CastError'
+      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Некорректный ID пользователя')
+      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
   }
 };
 
@@ -38,18 +32,12 @@ exports.getUserById = async (req, res) => {
 exports.createUser = async (req, res) => {
   const { name, about, avatar } = req.body;
   try {
-    if (!name || !about || !avatar) {
-      return handleErrorResponse(
-        ERROR_CODE.BAD_REQUEST,
-        res,
-        'Не все обязательные поля заполнены',
-      );
-    }
-
     const newUser = await User.create({ name, about, avatar });
     return res.status(201).json(newUser);
   } catch (err) {
-    return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message);
+    return err.name === 'ValidationError'
+      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданы некорректные данные пользователя')
+      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
   }
 };
 
@@ -65,18 +53,13 @@ exports.updateUserProfile = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      return handleErrorResponse(
-        ERROR_CODE.BAD_REQUEST,
-        res,
-        'Такого пользователя нет',
-      );
+      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
     }
-    return res.status(200).json(updatedUser);
+    return res.json(updatedUser);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message);
-    }
-    return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, err.message);
+    return err.name === 'ValidationError'
+      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданые некорректные данные')
+      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
   }
 };
 
@@ -89,21 +72,15 @@ exports.updateUserAvatar = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { avatar },
-      { new: true },
+      { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      return handleErrorResponse(
-        ERROR_CODE.NOT_FOUND,
-        res,
-        'Такого пользователя нет',
-      );
+      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
     }
-    return res.status(200).json(updatedUser);
+    return res.json(updatedUser);
   } catch (err) {
-    return handleErrorResponse(
-      ERROR_CODE.INTERNAL_SERVER_ERROR,
-      res,
-      err.message,
-    );
+    return err.name === 'ValidationError'
+      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданы некорректные данные')
+      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
   }
 };
