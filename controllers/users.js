@@ -74,7 +74,7 @@ exports.updateUserProfile = async (req, res) => {
         )
         if (!updatedUser) {
             return handleErrorResponse(
-                ERROR_CODE.NOT_FOUND,
+                ERROR_CODE.BAD_REQUEST,
                 res,
                 'Такого пользователя нет'
             )
@@ -82,7 +82,7 @@ exports.updateUserProfile = async (req, res) => {
         return res.status(200).json(updatedUser)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.BAD_REQUEST,
+            ERROR_CODE.NOT_FOUND,
             res,
             err.message
         )
