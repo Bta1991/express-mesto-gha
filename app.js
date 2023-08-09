@@ -1,8 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const userRouter = require('./routes/users') // путь к роутеру пользователей
-const cardRouter = require('./routes/cards') // путь к роутеру пользователей
+const routes = require('./routes/routes');
 const { handleUndefinedRoute } = require('./utils/errorHandleRoute') // Путь к errorMiddleware.js
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
@@ -25,8 +24,7 @@ app.use((req, res, next) => {
 })
 
 // Роутинг юзеров
-app.use(userRouter)
-app.use(cardRouter)
+app.use(routes);
 
 // Проверка роутинга
 app.use(handleUndefinedRoute)

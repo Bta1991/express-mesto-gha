@@ -23,7 +23,7 @@ exports.getUserById = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) {
             return handleErrorResponse(
-                ERROR_CODE.BAD_REQUEST,
+                ERROR_CODE.NOT_FOUND,
                 res,
                 'Такого пользователя нет'
             )
@@ -31,7 +31,7 @@ exports.getUserById = async (req, res) => {
         return res.status(200).json(user)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
@@ -53,11 +53,7 @@ exports.createUser = async (req, res) => {
         const newUser = await User.create({ name, about, avatar })
         return res.status(201).json(newUser)
     } catch (err) {
-        return handleErrorResponse(
-            ERROR_CODE.BAD_REQUEST,
-            res,
-            err.message
-        )
+        return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message)
     }
 }
 
@@ -81,11 +77,7 @@ exports.updateUserProfile = async (req, res) => {
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
-        return handleErrorResponse(
-            ERROR_CODE.NOT_FOUND,
-            res,
-            err.message
-        )
+        return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, err.message)
     }
 }
 
