@@ -33,7 +33,7 @@ exports.createCard = async (req, res) => {
         return res.status(201).json(newCard)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
@@ -55,13 +55,14 @@ exports.deleteCardById = async (req, res) => {
         return res.status(200).json({ message: 'Карточка удалена' })
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
     }
 }
 
+// Обработчик для лайка карточки по ID
 exports.likeCard = async (req, res) => {
     const userId = req.user._id
 
@@ -88,6 +89,7 @@ exports.likeCard = async (req, res) => {
     }
 }
 
+// Обработчик для удаления лайка карточки по ID
 exports.dislikeCard = async (req, res) => {
     const userId = req.user._id
 

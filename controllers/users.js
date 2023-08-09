@@ -23,7 +23,7 @@ exports.getUserById = async (req, res) => {
         const user = await User.findById(userId)
         if (!user) {
             return handleErrorResponse(
-                ERROR_CODE.NOT_FOUND,
+                ERROR_CODE.BAD_REQUEST,
                 res,
                 'Такого пользователя нет'
             )
@@ -54,13 +54,14 @@ exports.createUser = async (req, res) => {
         return res.status(201).json(newUser)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
     }
 }
 
+// Обработчик для изменения данных пользователя
 exports.updateUserProfile = async (req, res) => {
     const { name, about } = req.body
     const userId = req.user._id
@@ -81,13 +82,14 @@ exports.updateUserProfile = async (req, res) => {
         return res.status(200).json(updatedUser)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
     }
 }
 
+// Обработчик для изменения аватара пользователя
 exports.updateUserAvatar = async (req, res) => {
     const { avatar } = req.body
     const userId = req.user._id
