@@ -82,7 +82,7 @@ exports.likeCard = async (req, res) => {
         return res.status(200).json(updatedCard)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )
@@ -109,7 +109,7 @@ exports.dislikeCard = async (req, res) => {
         return res.status(200).json(updatedCard)
     } catch (err) {
         return handleErrorResponse(
-            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            ERROR_CODE.BAD_REQUEST,
             res,
             err.message
         )

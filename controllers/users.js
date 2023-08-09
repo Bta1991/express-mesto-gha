@@ -30,11 +30,7 @@ exports.getUserById = async (req, res) => {
         }
         return res.status(200).json(user)
     } catch (err) {
-        return handleErrorResponse(
-            ERROR_CODE.BAD_REQUEST,
-            res,
-            err.message
-        )
+        return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message)
     }
 }
 
@@ -66,7 +62,7 @@ exports.updateUserProfile = async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { name, about },
-            { new: true }
+            { new: true, runValidators: true }
         )
         if (!updatedUser) {
             return handleErrorResponse(
@@ -77,6 +73,9 @@ exports.updateUserProfile = async (req, res) => {
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
+        if (err.name === 'ValidationError') {
+            return handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, err.message)
+        }
         return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, err.message)
     }
 }
