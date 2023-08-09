@@ -1,8 +1,6 @@
 const Card = require('../models/card') // путь к модели карточки
 
-const handleErrorResponse = (code, res, errorMessage) => {
-    res.status(code).json({ error: errorMessage })
-}
+const { ERROR_CODE, handleErrorResponse } = require('../utils/errorUtils') // Путь к errorUtils.js
 
 // Обработчик для получения всех карточек
 exports.getAllCards = async (req, res) => {
@@ -10,7 +8,11 @@ exports.getAllCards = async (req, res) => {
         const cards = await Card.find()
         return res.status(200).json(cards)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -21,7 +23,7 @@ exports.createCard = async (req, res) => {
     try {
         if (!name || !link) {
             return handleErrorResponse(
-                400,
+                ERROR_CODE.BAD_REQUEST,
                 res,
                 'Не все обязательные поля заполнены'
             )
@@ -30,7 +32,11 @@ exports.createCard = async (req, res) => {
         const newCard = await Card.create({ name, link, owner })
         return res.status(201).json(newCard)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -40,11 +46,19 @@ exports.deleteCardById = async (req, res) => {
     try {
         const deletedCard = await Card.findByIdAndDelete(cardId)
         if (!deletedCard) {
-            return handleErrorResponse(404, res, 'Карточка не найдена')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Карточка не найдена'
+            )
         }
         return res.status(200).json({ message: 'Карточка удалена' })
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -58,11 +72,19 @@ exports.likeCard = async (req, res) => {
             { new: true }
         )
         if (!updatedCard) {
-            return handleErrorResponse(404, res, 'Карточка не найдена')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Карточка не найдена'
+            )
         }
         return res.status(200).json(updatedCard)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -76,10 +98,18 @@ exports.dislikeCard = async (req, res) => {
             { new: true }
         )
         if (!updatedCard) {
-            return handleErrorResponse(404, res, 'Карточка не найдена')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Карточка не найдена'
+            )
         }
         return res.status(200).json(updatedCard)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }

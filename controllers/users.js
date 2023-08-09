@@ -1,8 +1,6 @@
 const User = require('../models/user') // путь к модели пользователя
 
-const handleErrorResponse = (code, res, errorMessage) => {
-    res.status(code).json({ error: errorMessage })
-}
+const { ERROR_CODE, handleErrorResponse } = require('../utils/errorUtils') // Путь к errorUtils.js
 
 // Обработчик для получения всех пользователей
 exports.getAllUsers = async (req, res) => {
@@ -10,7 +8,11 @@ exports.getAllUsers = async (req, res) => {
         const users = await User.find()
         return res.status(200).json(users)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -20,11 +22,19 @@ exports.getUserById = async (req, res) => {
     try {
         const user = await User.findById(userId)
         if (!user) {
-            return handleErrorResponse(404, res, 'Такого пользователя нет')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Такого пользователя нет'
+            )
         }
         return res.status(200).json(user)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -34,7 +44,7 @@ exports.createUser = async (req, res) => {
     try {
         if (!name || !about || !avatar) {
             return handleErrorResponse(
-                400,
+                ERROR_CODE.BAD_REQUEST,
                 res,
                 'Не все обязательные поля заполнены'
             )
@@ -43,7 +53,11 @@ exports.createUser = async (req, res) => {
         const newUser = await User.create({ name, about, avatar })
         return res.status(201).json(newUser)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -58,11 +72,19 @@ exports.updateUserProfile = async (req, res) => {
             { new: true }
         )
         if (!updatedUser) {
-            return handleErrorResponse(404, res, 'Такого пользователя нет')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Такого пользователя нет'
+            )
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
 
@@ -77,10 +99,18 @@ exports.updateUserAvatar = async (req, res) => {
             { new: true }
         )
         if (!updatedUser) {
-            return handleErrorResponse(404, res, 'Такого пользователя нет')
+            return handleErrorResponse(
+                ERROR_CODE.NOT_FOUND,
+                res,
+                'Такого пользователя нет'
+            )
         }
         return res.status(200).json(updatedUser)
     } catch (err) {
-        return handleErrorResponse(500, res, err)
+        return handleErrorResponse(
+            ERROR_CODE.INTERNAL_SERVER_ERROR,
+            res,
+            err.message
+        )
     }
 }
