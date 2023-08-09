@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const routes = require('./routes/routes');
-const { handleUndefinedRoute } = require('./utils/errorHandleRoute') // Путь к errorMiddleware.js
+
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
     process.env
@@ -25,9 +25,6 @@ app.use((req, res, next) => {
 
 // Роутинг юзеров
 app.use(routes);
-
-// Проверка роутинга
-app.use(handleUndefinedRoute)
 
 // подключаемся к серверу mongo
 mongoose.connect(MONGO_DB)

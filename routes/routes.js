@@ -1,14 +1,12 @@
 const router = require('express').Router()
 const userRouter = require('./users')
 const cardRouter = require('./cards')
-// const { ERROR_CODE, handleErrorResponse } = require('../utils/errorUtils') // Путь к errorUtils.js
-
+const { handleUndefinedRoute } = require('../utils/errorHandleRoute') // Путь к errorUtils.js
 
 router.use('/users', userRouter)
 router.use('/cards', cardRouter)
 
-// router.use('*', (req, res, next) => {
-//     next(new handleErrorResponse('Страница не найдена'))
-// })
+// Обработка запросов, которые не соответствуют ни одному маршруту
+router.use((req, res) => handleUndefinedRoute(req, res));
 
 module.exports = router
