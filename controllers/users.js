@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs'); // импортируем bcrypt
 const jwt = require('jsonwebtoken'); // импортируем JSONwebtoken
 const User = require('../models/user'); // путь к модели пользователя
 
+const { JWT_SECRET = 'your-secret-key' } = process.env;
+
 const { ERROR_CODE, handleErrorResponse } = require('../utils/errorUtils'); // Путь к errorUtils.js
 
 // Обработчик для получения всех пользователей
@@ -10,7 +12,11 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find();
     return res.json(users);
   } catch (err) {
-    return handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+    return handleErrorResponse(
+      ERROR_CODE.INTERNAL_SERVER_ERROR,
+      res,
+      'Произошла ошибка',
+    );
   }
 };
 
@@ -20,13 +26,53 @@ exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
+      return handleErrorResponse(
+        ERROR_CODE.NOT_FOUND,
+        res,
+        'Такого пользователя нет',
+      );
     }
     return res.json(user);
   } catch (err) {
     return err.name === 'CastError'
-      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Некорректный ID пользователя')
-      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+      ? handleErrorResponse(
+        ERROR_CODE.BAD_REQUEST,
+        res,
+        'Некорректный ID пользователя',
+      )
+      : handleErrorResponse(
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        res,
+        'Произошла ошибка',
+      );
+  }
+};
+
+// Обработчик для получения инфы о своем пользователе
+exports.getCurrentUser = async (req, res) => {
+  const { userId } = req.user._id;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return handleErrorResponse(
+        ERROR_CODE.NOT_FOUND,
+        res,
+        'Такого пользователя нет',
+      );
+    }
+    return res.json(user);
+  } catch (err) {
+    return err.name === 'CastError'
+      ? handleErrorResponse(
+        ERROR_CODE.BAD_REQUEST,
+        res,
+        'Некорректный ID пользователя',
+      )
+      : handleErrorResponse(
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        res,
+        'Произошла ошибка',
+      );
   }
 };
 
@@ -51,8 +97,16 @@ exports.createUser = async (req, res) => {
   } catch (err) {
     // console.error(err);
     return err.name === 'ValidationError'
-      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданы некорректные данные пользователя')
-      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+      ? handleErrorResponse(
+        ERROR_CODE.BAD_REQUEST,
+        res,
+        'Переданы некорректные данные пользователя',
+      )
+      : handleErrorResponse(
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        res,
+        'Произошла ошибка',
+      );
   }
 };
 
@@ -68,13 +122,25 @@ exports.updateUserProfile = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
+      return handleErrorResponse(
+        ERROR_CODE.NOT_FOUND,
+        res,
+        'Такого пользователя нет',
+      );
     }
     return res.json(updatedUser);
   } catch (err) {
     return err.name === 'ValidationError'
-      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданые некорректные данные')
-      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+      ? handleErrorResponse(
+        ERROR_CODE.BAD_REQUEST,
+        res,
+        'Переданые некорректные данные',
+      )
+      : handleErrorResponse(
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        res,
+        'Произошла ошибка',
+      );
   }
 };
 
@@ -90,13 +156,25 @@ exports.updateUserAvatar = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      return handleErrorResponse(ERROR_CODE.NOT_FOUND, res, 'Такого пользователя нет');
+      return handleErrorResponse(
+        ERROR_CODE.NOT_FOUND,
+        res,
+        'Такого пользователя нет',
+      );
     }
     return res.json(updatedUser);
   } catch (err) {
     return err.name === 'ValidationError'
-      ? handleErrorResponse(ERROR_CODE.BAD_REQUEST, res, 'Переданы некорректные данные')
-      : handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+      ? handleErrorResponse(
+        ERROR_CODE.BAD_REQUEST,
+        res,
+        'Переданы некорректные данные',
+      )
+      : handleErrorResponse(
+        ERROR_CODE.INTERNAL_SERVER_ERROR,
+        res,
+        'Произошла ошибка',
+      );
   }
 };
 
@@ -106,21 +184,32 @@ exports.login = async (req, res) => {
 
   try {
     // Находим пользователя по email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password'); // вызова метода модели, нужно добавить вызов метода select, передав ему строку +password:
 
     // Если пользователя нет или пароль неверный
-    if (!user || !await bcrypt.compare(password, user.password)) {
-      return handleErrorResponse(ERROR_CODE.UNAUTHORIZED, res, 'Неправильные почта или пароль');
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return handleErrorResponse(
+        ERROR_CODE.UNAUTHORIZED,
+        res,
+        'Неправильные почта или пароль',
+      );
     }
 
     // Создаем JWT токен
-    const token = jwt.sign({ _id: user._id }, 'your-secret-key', { expiresIn: '1w' });
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '1w' });
 
-    // Отправляем токен в куку
-    res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 }); //  httpOnly
-
-    return res.json({ message: 'Успешный вход' });
+    // Отправляем токен в куку с httpOnly для безопасности
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    // Завершаем ответ, так как у него нет тела, ретурн должен быть для стрелочных функций
+    return null;
   } catch (err) {
-    return handleErrorResponse(ERROR_CODE.INTERNAL_SERVER_ERROR, res, 'Произошла ошибка');
+    return handleErrorResponse(
+      ERROR_CODE.INTERNAL_SERVER_ERROR,
+      res,
+      'Произошла ошибка',
+    );
   }
 };

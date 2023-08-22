@@ -9,8 +9,11 @@ router.get('/', userController.getAllUsers);
 // GET /:userId - возвращает пользователя по _id
 router.get('/:userId', userController.getUserById);
 
-// POST / — создаёт пользователя
-router.post('/', userController.createUser);
+// GET /me - возвращает информацию о текущем пользователе
+router.get('/me', userController.getCurrentUser);
+
+// // POST / — создаёт пользователя перенесен в app.js
+// router.post('/', userController.createUser);
 
 // PATCH /me — обновляет профиль
 router.patch('/me', userController.updateUserProfile);

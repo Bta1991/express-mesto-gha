@@ -2,9 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const cors = require('cors');
-
 const bodyParser = require('body-parser');
+const cors = require('cors');
+require('dotenv').config();
+
 const routes = require('./routes/routes');
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
@@ -30,16 +31,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// хардкод пользователя
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64d2b7b84f949cddedf4c307', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
-});
-
-// Роутинг юзеров
+// Основной роутинг
 app.use(routes);
 
 // подключаемся к серверу mongo
