@@ -93,6 +93,8 @@ exports.createUser = async (req, res) => {
       about,
       avatar,
     });
+    // удалим password из объекта перед отправкой ответа
+    newUser.password = undefined;
     return res.status(201).json(newUser);
   } catch (err) {
     // console.error(err);
