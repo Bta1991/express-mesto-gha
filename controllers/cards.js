@@ -4,17 +4,17 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 
 // Обработчик для получения всех карточек
-exports.getAllCards = async (req, res) => {
+exports.getAllCards = async (req, res, next) => {
   try {
     const cards = await Card.find();
     return res.json(cards);
   } catch (err) {
-    throw new Error('Произошла ошибка при получении карточек');
+    return next(new Error('Произошла ошибка при получении карточек'));
   }
 };
 
 // Обработчик для создания новой карточки
-exports.createCard = async (req, res) => {
+exports.createCard = async (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   try {
@@ -22,31 +22,31 @@ exports.createCard = async (req, res) => {
     return res.status(201).json(newCard);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные карточки');
+      return next(new BadRequestError('Переданы некорректные данные карточки'));
     }
-    throw new Error('Произошла ошибка при создании карточки');
+    return next(new Error('Произошла ошибка при создании карточки'));
   }
 };
 
 // Обработчик для удаления карточки по ID
-exports.deleteCardById = async (req, res) => {
+exports.deleteCardById = async (req, res, next) => {
   const { cardId } = req.params;
   try {
     const deletedCard = await Card.findByIdAndDelete(cardId);
     if (!deletedCard) {
-      throw new NotFoundError('Карточка не найдена');
+      return next(new NotFoundError('Карточка не найдена'));
     }
     return res.json({ message: 'Карточка удалена' });
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID карточки');
+      return next(new BadRequestError('Некорректный ID карточки'));
     }
-    throw new Error('Произошла ошибка при удалении карточки');
+    return next(new Error('Произошла ошибка при удалении карточки'));
   }
 };
 
 // Обработчик для лайка карточки по ID
-exports.likeCard = async (req, res) => {
+exports.likeCard = async (req, res, next) => {
   const userId = req.user._id;
 
   try {
@@ -56,19 +56,19 @@ exports.likeCard = async (req, res) => {
       { new: true },
     );
     if (!updatedCard) {
-      throw new NotFoundError('Карточка не найдена');
+      return next(new NotFoundError('Карточка не найдена'));
     }
     return res.json(updatedCard);
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID карточки');
+      return next(new BadRequestError('Некорректный ID карточки'));
     }
-    throw new Error('Произошла ошибка при постановке лайка');
+    return next(new Error('Произошла ошибка при постановке лайка'));
   }
 };
 
 // Обработчик для удаления лайка карточки по ID
-exports.dislikeCard = async (req, res) => {
+exports.dislikeCard = async (req, res, next) => {
   const userId = req.user._id;
 
   try {
@@ -78,13 +78,13 @@ exports.dislikeCard = async (req, res) => {
       { new: true },
     );
     if (!updatedCard) {
-      throw new NotFoundError('Карточка не найдена');
+      return next(new NotFoundError('Карточка не найдена'));
     }
     return res.json(updatedCard);
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID карточки');
+      return next(new BadRequestError('Некорректный ID карточки'));
     }
-    throw new Error('Произошла ошибка при снятии лайка');
+    return next(new Error('Произошла ошибка при снятии лайка'));
   }
 };

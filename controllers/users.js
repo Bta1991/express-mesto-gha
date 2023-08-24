@@ -8,52 +8,52 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ConflictError = require('../errors/conflict-err');
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find();
     return res.json(users);
   } catch (err) {
-    throw new Error('Произошла ошибка при получении пользователей');
+    return next(new Error('Произошла ошибка при получении пользователей'));
   }
 };
 
-exports.getUserById = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
   const { userId } = req.params;
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new NotFoundError('Такого пользователя нет');
+      return next(new NotFoundError('Такого пользователя нет'));
     }
     return res.json(user);
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID пользователя');
-    } else {
-      throw new Error('Произошла ошибка при получении пользователя по ID');
+      return next(new BadRequestError('Некорректный ID пользователя'));
     }
+    return next(new Error('Произошла ошибка при получении пользователя по ID'));
   }
 };
 
-exports.getCurrentUser = async (req, res) => {
+exports.getCurrentUser = async (req, res, next) => {
   const userId = req.user._id;
   try {
     const user = await User.findById(userId);
     if (!user) {
-      throw new NotFoundError('Такого пользователя нет');
+      return next(new NotFoundError('Такого пользователя нет'));
     }
     return res.json(user);
   } catch (err) {
     if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID пользователя');
-    } else {
-      throw new Error(
-        'Произошла ошибка при получении информации о текущем пользователе',
-      );
+      return next(new BadRequestError('Некорректный ID пользователя'));
     }
+    return next(
+      new Error(
+        'Произошла ошибка при получении информации о текущем пользователе',
+      ),
+    );
   }
 };
 
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -70,16 +70,20 @@ exports.createUser = async (req, res) => {
     return res.status(201).json(newUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные пользователя');
-    } else if (err.code === 11000) {
-      throw new ConflictError('Пользователь с таким email уже существует');
-    } else {
-      throw new Error('Произошла ошибка при создании пользователя');
+      return next(
+        new BadRequestError('Переданы некорректные данные пользователя'),
+      );
     }
+    if (err.code === 11000) {
+      return next(
+        new ConflictError('Пользователь с таким email уже существует'),
+      );
+    }
+    return next(new Error('Произошла ошибка при создании пользователя'));
   }
 };
 
-exports.updateUserProfile = async (req, res) => {
+exports.updateUserProfile = async (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -90,21 +94,23 @@ exports.updateUserProfile = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      throw new NotFoundError('Такого пользователя нет');
+      return next(new NotFoundError('Такого пользователя нет'));
     }
     return res.json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные');
-    } else if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID пользователя');
-    } else {
-      throw new Error('Произошла ошибка при обновлении профиля пользователя');
+      return next(new BadRequestError('Переданы некорректные данные'));
     }
+    if (err.name === 'CastError') {
+      return next(new BadRequestError('Некорректный ID пользователя'));
+    }
+    return next(
+      new Error('Произошла ошибка при обновлении профиля пользователя'),
+    );
   }
 };
 
-exports.updateUserAvatar = async (req, res) => {
+exports.updateUserAvatar = async (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -115,27 +121,29 @@ exports.updateUserAvatar = async (req, res) => {
       { new: true, runValidators: true },
     );
     if (!updatedUser) {
-      throw new NotFoundError('Такого пользователя нет');
+      return next(new NotFoundError('Такого пользователя нет'));
     }
     return res.json(updatedUser);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      throw new BadRequestError('Переданы некорректные данные');
-    } else if (err.name === 'CastError') {
-      throw new BadRequestError('Некорректный ID пользователя');
-    } else {
-      throw new Error('Произошла ошибка при обновлении аватара пользователя');
+      return next(new BadRequestError('Переданы некорректные данные'));
     }
+    if (err.name === 'CastError') {
+      return next(new BadRequestError('Некорректный ID пользователя'));
+    }
+    return next(
+      new Error('Произошла ошибка при обновлении аватара пользователя'),
+    );
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedError('Неправильные почта или пароль');
+      return next(new UnauthorizedError('Неправильные почта или пароль'));
     }
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '1w' });
@@ -144,7 +152,8 @@ exports.login = async (req, res) => {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    return res.send({ message: 'Авторизация успешна' });
   } catch (err) {
-    throw new Error('Произошла ошибка при попытке входа');
+    return next(new Error('Произошла ошибка при попытке входа'));
   }
 };

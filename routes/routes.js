@@ -6,6 +6,10 @@ const authMiddleware = require('../middlewares/auth'); // Путь к auth.js
 
 const BadRequestError = require('../errors/bad-request-err');
 
+const errorHandler = require('../middlewares/error-handler');
+// Центральный обработчик ошибок
+// app.use(errorHandler);
+
 // Роуты авторизации и регистрации
 router.post('/signin', userController.login);
 router.post('/signup', userController.createUser);
@@ -21,5 +25,7 @@ router.use('/cards', cardRouter);
 router.use(() => {
   throw new BadRequestError('Запрашиваемый ресурс не найден');
 });
+
+router.use(errorHandler);
 
 module.exports = router;

@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
-const handleErrors = require('./middlewares/handleErrors');
 const routes = require('./routes/routes');
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
@@ -34,9 +33,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Основной роутинг
 app.use(routes);
-
-// Центральный обработчик ошибок
-app.use(handleErrors);
 
 // подключаемся к серверу mongo
 mongoose
