@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
 // Регулярное выражение для проверки ссылок
-const linkValid =
-  /^(https?:\/\/)(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[\w\-./#?&]*)*$/i;
+const linkValid = /^(https?:\/\/)(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[\w\-./#?&]*)*$/;
 
 const cardSchema = new mongoose.Schema({
   name: {
