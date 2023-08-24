@@ -12,8 +12,7 @@ module.exports.signupValidationSchema = {
           return err.message('Некорректная ссылка');
         }
         return value;
-      })
-      .required(),
+      }),
   }),
 };
 
