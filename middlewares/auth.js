@@ -5,15 +5,15 @@ const { JWT_SECRET = 'your-secret-key' } = process.env;
 
 // мидлвэр будет проверять токен в заголовках запроса и добавлять пейлоуд токена в объект запроса
 const authMiddleware = (req, res, next) => {
-  // Получаем токен из куки
-  const { token } = req.cookies;
+  const { cookies } = req;
 
-  // Проверяем наличие токена
-  if (!token) {
+  if (!cookies || !cookies.token) {
     return next(
       new UnauthorizedError('Токен отсутствует. Авторизация не выполнена.'),
     );
   }
+  // Получаем токен из куки
+  const { token } = req.cookies;
 
   // Верифицируем токен и получаем пейлоуд
   try {
