@@ -5,8 +5,11 @@ const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { errors } = require('celebrate');
+
 require('dotenv').config();
 
+const errorHandler = require('./middlewares/error-handler');
 const routes = require('./routes/routes');
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
@@ -51,3 +54,7 @@ mongoose
     // eslint-disable-next-line no-console
     console.log('Ошибка подключения к базе данных:', err.message);
   });
+
+app.use(errors());
+
+app.use(errorHandler);

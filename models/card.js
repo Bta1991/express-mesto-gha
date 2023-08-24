@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+// Регулярное выражение для проверки ссылок
+const linkValid =
+  /^(https?:\/\/)(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[\w\-./#?&]*)*$/i;
+
 const cardSchema = new mongoose.Schema({
   name: {
     // имя карточки
@@ -12,6 +16,12 @@ const cardSchema = new mongoose.Schema({
     // ссылка на картинку
     type: String,
     required: true,
+    validate: {
+      validator(v) {
+        return linkValid.test(v);
+      },
+      message: 'Некорректная ссылка на аватар',
+    },
   },
   owner: {
     // ссылка на модель автора карточки (тип ObjectId)

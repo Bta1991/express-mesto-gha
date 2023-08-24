@@ -1,17 +1,15 @@
 const router = require('express').Router();
-const { errors } = require('celebrate'); // Подключаем celebrate и Joi
+
 const {
   signUpValidation,
   signInValidation,
-} = require('../models/validation-joi'); // Импорт схемы валидации
+} = require('../middlewares/validation-joi'); // Импорт схемы валидации
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 const userController = require('../controllers/users'); // Путь к контроллеру пользователей
 const authMiddleware = require('../middlewares/auth'); // Путь к auth.js
 
 const NotFoundError = require('../errors/not-found-err');
-
-const errorHandler = require('../middlewares/error-handler');
 
 // Роуты авторизации и регистрации
 router.post('/signin', signInValidation, userController.login);
@@ -28,9 +26,5 @@ router.use('/cards', cardRouter);
 router.use(() => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
-
-router.use(errors());
-
-router.use(errorHandler);
 
 module.exports = router;

@@ -6,7 +6,7 @@ const {
   validateUserId,
   validateUpdateUser,
   validateUpdateAvatar,
-} = require('../models/validation-joi');
+} = require('../middlewares/validation-joi');
 
 // GET /me - возвращает информацию о текущем пользователе
 router.get('/me', userController.getCurrentUser);

@@ -6,7 +6,7 @@ const cardController = require('../controllers/cards'); //  путь к конт
 const {
   validateCreateCard,
   validateCardId,
-} = require('../models/validation-joi');
+} = require('../middlewares/validation-joi');
 
 // GET /cards — возвращает все карточки
 router.get('/', cardController.getAllCards);
