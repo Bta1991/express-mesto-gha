@@ -9,3 +9,10 @@ module.exports.signupValidationSchema = {
     avatar: Joi.string().uri(),
   }),
 };
+
+module.exports.signinValidationSchema = {
+  body: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+};

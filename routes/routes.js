@@ -1,17 +1,20 @@
 const router = require('express').Router();
 const { celebrate, errors } = require('celebrate'); // Подключаем celebrate и Joi
-const { signupValidationSchema } = require('../models/validation-joi'); // Импорт схемы валидации
+const {
+  signupValidationSchema,
+  signinValidationSchema,
+} = require('../models/validation-joi'); // Импорт схемы валидации
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 const userController = require('../controllers/users'); // Путь к контроллеру пользователей
 const authMiddleware = require('../middlewares/auth'); // Путь к auth.js
 
-const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 const errorHandler = require('../middlewares/error-handler');
 
 // Роуты авторизации и регистрации
-router.post('/signin', userController.login);
+router.post('/signin', celebrate(signinValidationSchema), userController.login);
 router.post(
   '/signup',
   celebrate(signupValidationSchema),
@@ -27,7 +30,7 @@ router.use('/cards', cardRouter);
 
 // Обработка запросов, которые не соответствуют ни одному маршруту
 router.use(() => {
-  throw new BadRequestError('Запрашиваемый ресурс не найден');
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
 
 router.use(errors());
