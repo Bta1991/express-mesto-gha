@@ -53,36 +53,6 @@ exports.getCurrentUser = async (req, res, next) => {
   }
 };
 
-exports.createUser = async (req, res, next) => {
-  const {
-    email, password, name, about, avatar,
-  } = req.body;
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      name,
-      about,
-      avatar,
-    });
-    newUser.password = undefined;
-    return res.status(201).json(newUser);
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      return next(
-        new BadRequestError('Переданы некорректные данные пользователя'),
-      );
-    }
-    if (err.code === 11000) {
-      return next(
-        new ConflictError('Пользователь с таким email уже существует'),
-      );
-    }
-    return next(new Error('Произошла ошибка при создании пользователя'));
-  }
-};
-
 exports.updateUserProfile = async (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
@@ -137,6 +107,36 @@ exports.updateUserAvatar = async (req, res, next) => {
   }
 };
 
+exports.createUser = async (req, res, next) => {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      name,
+      about,
+      avatar,
+    });
+    newUser.password = undefined;
+    return res.status(201).json(newUser);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return next(
+        new BadRequestError('Переданы некорректные данные пользователя'),
+      );
+    }
+    if (err.code === 11000) {
+      return next(
+        new ConflictError('Пользователь с таким email уже существует'),
+      );
+    }
+    return next(new Error('Произошла ошибка при создании пользователя'));
+  }
+};
+
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -150,9 +150,10 @@ exports.login = async (req, res, next) => {
 
     res.cookie('jwt', token, {
       httpOnly: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: true,
     });
-    return res.send({ message: 'Авторизация успешна' });
+    // return res.send({ message: 'Авторизация успешна' });
+    return res.send({ token });
   } catch (err) {
     return next(new Error('Произошла ошибка при попытке входа'));
   }
