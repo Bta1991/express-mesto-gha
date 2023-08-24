@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -26,6 +27,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(helmet());
 app.use(cors());
+app.use(cookieParser());
 
 // мидлверы для разбора JSON-тела запросов
 app.use(bodyParser.json());
