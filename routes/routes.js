@@ -1,8 +1,8 @@
 const router = require('express').Router();
-const { celebrate, errors } = require('celebrate'); // Подключаем celebrate и Joi
+const { errors } = require('celebrate'); // Подключаем celebrate и Joi
 const {
-  signupValidationSchema,
-  signinValidationSchema,
+  signUpValidation,
+  signInValidation,
 } = require('../models/validation-joi'); // Импорт схемы валидации
 const userRouter = require('./users');
 const cardRouter = require('./cards');
@@ -14,12 +14,8 @@ const NotFoundError = require('../errors/not-found-err');
 const errorHandler = require('../middlewares/error-handler');
 
 // Роуты авторизации и регистрации
-router.post('/signin', celebrate(signinValidationSchema), userController.login);
-router.post(
-  '/signup',
-  celebrate(signupValidationSchema),
-  userController.createUser,
-);
+router.post('/signin', signInValidation, userController.login);
+router.post('/signup', signUpValidation, userController.createUser);
 
 // Применяем мидлвэр проверки авторизации ко всем маршрутам, кроме /signin и /signup
 router.use(authMiddleware);
