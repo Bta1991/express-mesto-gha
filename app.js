@@ -6,9 +6,11 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
 
+const handleErrors = require('./middlewares/handleErrors');
 const routes = require('./routes/routes');
 
-const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
+  process.env;
 
 const app = express();
 
@@ -26,19 +28,28 @@ app.use(limiter);
 app.use(helmet());
 app.use(cors());
 
-// Middleware для разбора JSON-тела запросов
-// app.use(express.json())
+// мидлверы для разбора JSON-тела запросов
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Основной роутинг
 app.use(routes);
 
-// подключаемся к серверу mongo
-mongoose.connect(MONGO_DB);
+// Центральный обработчик ошибок
+app.use(handleErrors);
 
-// Слушаем 3000 порт
-app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
-  console.log(`App listening on port ${PORT}`); // eslint-disable-line
-});
+// подключаемся к серверу mongo
+mongoose
+  .connect(MONGO_DB, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    // Слушаем 3000 порт
+    app.listen(PORT, () => {
+      // Если всё работает, консоль покажет, какой порт приложение слушает
+      // eslint-disable-next-line no-console
+      console.log(`App listening on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    // eslint-disable-next-line no-console
+    console.log('Ошибка подключения к базе данных:', err.message);
+  });

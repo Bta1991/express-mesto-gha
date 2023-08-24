@@ -33,7 +33,14 @@ const userSchema = new mongoose.Schema(
     avatar: {
       // ссылка на аватарку
       type: String,
-      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png', // Дефолтное значение
+      validate: {
+        validator(v) {
+          return /^(https?:\/\/)(www\.)?[\w\-./#?&]+$/i.test(v);
+        },
+        message: 'Некорректная ссылка на аватар',
+      },
+      default:
+        'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png', // Дефолтное значение
     },
   },
   {

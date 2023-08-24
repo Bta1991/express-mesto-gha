@@ -12,9 +12,6 @@ router.get('/:userId', userController.getUserById);
 // GET /me - возвращает информацию о текущем пользователе
 router.get('/me', userController.getCurrentUser);
 
-// // POST / — создаёт пользователя перенесен в app.js
-// router.post('/', userController.createUser);
-
 // PATCH /me — обновляет профиль
 router.patch('/me', userController.updateUserProfile);
 
