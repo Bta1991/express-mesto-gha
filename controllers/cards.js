@@ -2,6 +2,7 @@ const Card = require('../models/card'); // путь к модели карточ
 
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 // Обработчик для получения всех карточек
 exports.getAllCards = async (req, res, next) => {
@@ -31,7 +32,23 @@ exports.createCard = async (req, res, next) => {
 // Обработчик для удаления карточки по ID
 exports.deleteCardById = async (req, res, next) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
+
   try {
+    // Находим карточку по ID
+    const cardToDelete = await Card.findById(cardId);
+
+    if (!cardToDelete) {
+      return next(new NotFoundError('Карточка не найдена'));
+    }
+
+    // Проверяем, является ли текущий пользователь владельцем карточки
+    if (cardToDelete.owner.toString() !== userId) {
+      return next(
+        new ForbiddenError('У вас нет прав на удаление этой карточки'),
+      );
+    }
+
     const deletedCard = await Card.findByIdAndDelete(cardId);
     if (!deletedCard) {
       return next(new NotFoundError('Карточка не найдена'));
