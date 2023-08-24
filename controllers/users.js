@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const { JWT_SECRET = 'your-secret-key' } = process.env;
+const UnauthorizedError = require('../errors/unauthorized-err');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ConflictError = require('../errors/conflict-err');
@@ -142,7 +143,7 @@ exports.login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return next(new BadRequestError('Неправильные почта или пароль'));
+      return next(new UnauthorizedError('Неправильные почта или пароль'));
     }
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '1w' });

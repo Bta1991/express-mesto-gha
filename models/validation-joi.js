@@ -6,7 +6,14 @@ module.exports.signupValidationSchema = {
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string()
+      .custom((value, err) => {
+        if (!/^(https?:\/\/)(www\.)?[\w\-./#?&]+$/i.test(value)) {
+          return err.message('Некорректная ссылка');
+        }
+        return value;
+      })
+      .required(),
   }),
 };
 
