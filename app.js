@@ -10,6 +10,7 @@ const { errors } = require('celebrate');
 require('dotenv').config();
 
 const errorHandler = require('./middlewares/error-handler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routes = require('./routes/routes');
 
 const { PORT = 3000, MONGO_DB = 'mongodb://127.0.0.1:27017/mestodb' } =
@@ -36,6 +37,9 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// подключаем логгер запросов
+app.use(requestLogger);
+
 // Основной роутинг
 app.use(routes);
 
@@ -55,6 +59,8 @@ mongoose
     console.log('Ошибка подключения к базе данных:', err.message);
   });
 
-app.use(errors());
+app.use(errorLogger); // подключаем логгер ошибок
 
-app.use(errorHandler);
+app.use(errors()); // обработчик ошибок celebrate
+
+app.use(errorHandler); // централлизированный обработчик ошибок
