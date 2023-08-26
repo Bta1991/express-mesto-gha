@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) {
-    return next(new UnauthorizedError('Токен отсуствует')); // проверяем наличие токена и возвращаем ошибку, если он отсутствует
+    return next(new UnauthorizedError('Токен отсуствует')); // проверяем наличие токена и возвращаем ошибку, если его нет
   }
 
   try {

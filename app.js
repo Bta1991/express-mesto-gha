@@ -49,7 +49,6 @@ mongoose
   .then(() => {
     // Слушаем 3000 порт
     app.listen(PORT, () => {
-      // Если всё работает, консоль покажет, какой порт приложение слушает
       // eslint-disable-next-line no-console
       console.log(`App listening on port ${PORT}`);
     });
